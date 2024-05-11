@@ -21,6 +21,41 @@ def citeste_text_din_fisier(nume_fisier):
 # Lista cuvintelor vulgare
 cuvinte_vulgare = ['shit', 'fuck', 'fucking', 'bitch', 'dick', 'kys', 'cum']
 
+# Funcție pentru procesarea textului
+def proceseaza_text(text, cuvinte_vulgare,explicit):
+
+    cuvinte = text.split()
+    cuvinte_procesate = []
+    explicit_count = 0
+
+    for cuvant in cuvinte:
+        cuvant_original = cuvant.lower().strip('''"', ;.!?-''')
+        print(cuvant + " | " + cuvant_original)
+        if cuvant_original in cuvinte_vulgare:
+            cuvant = cenzureaza_cuvant(cuvant)
+            explicit_count += 1
+
+        else:
+            # Verificarea similitudinii cuvintelor
+            similar = test_similitudine(cuvant_original)
+            if similar:
+                # Dacă cuvântul este similar cu unul din lista cuvintelor vulgare, se va verifica dacă aparține limbii engleze.
+                verificare = verifica_cuvant(cuvant_original, api_key)
+
+                # Dacă cuvântul nu există în dicționarul limbii engleze sau este rar întâlnit, se va cenzura.
+                if verificare == False or verificare == "rar":
+                    cuvant = cenzureaza_cuvant(cuvant_original)
+                    explicit_count += 1
+
+        cuvinte_procesate.append(cuvant)
+
+    if explicit_count>=3:
+        print("\n\nTextul contine " + str(explicit_count) + " cuvinte vulgare.")
+        explicit = 1
+
+    text_procesat = ' '.join(cuvinte_procesate)
+    text_procesat += '\n'
+    return ( text_procesat,explicit)  
 
 
 # Funcție pentru cenzurarea cuvântului în funcție de lungime
@@ -117,41 +152,6 @@ def test_similitudine(cuvant):
 
     return False
 
-# Funcție pentru procesarea textului
-def proceseaza_text(text, cuvinte_vulgare,explicit):
-
-    cuvinte = text.split()
-    cuvinte_procesate = []
-    explicit_count = 0
-
-    for cuvant in cuvinte:
-        cuvant_original = cuvant.lower().strip('''"', ;.!?-''')
-        print(cuvant + " | " + cuvant_original)
-        if cuvant_original in cuvinte_vulgare:
-            cuvant = cenzureaza_cuvant(cuvant)
-            explicit_count += 1
-
-        else:
-            # Verificarea similitudinii cuvintelor
-            similar = test_similitudine(cuvant_original)
-            if similar:
-                # Dacă cuvântul este similar cu unul din lista cuvintelor vulgare, se va verifica dacă aparține limbii engleze.
-                verificare = verifica_cuvant(cuvant_original, api_key)
-
-                # Dacă cuvântul nu există în dicționarul limbii engleze sau este rar întâlnit, se va cenzura.
-                if verificare == False or verificare == "rar":
-                    cuvant = cenzureaza_cuvant(cuvant_original)
-                    explicit_count += 1
-
-        cuvinte_procesate.append(cuvant)
-
-    if explicit_count>=3:
-        print("\n\nTextul contine " + str(explicit_count) + " cuvinte vulgare.")
-        explicit = 1
-
-    text_procesat = ' '.join(cuvinte_procesate)
-    text_procesat += '\n'
-    return ( text_procesat,explicit)  # Reunim cuvintele înapoi într-un text.
 
 if __name__ == '__main__':
     text_de_intrare = citeste_text_din_fisier('input.txt')
