@@ -30,7 +30,7 @@ def proceseaza_text(text, cuvinte_vulgare,explicit):
 
     for cuvant in cuvinte:
         cuvant_original = cuvant.lower().strip('''"', ;.!?-''')
-        print(cuvant + " | " + cuvant_original)
+        #print(cuvant + " | " + cuvant_original)
         if cuvant_original in cuvinte_vulgare:
             cuvant = cenzureaza_cuvant(cuvant)
             explicit_count += 1
@@ -55,7 +55,7 @@ def proceseaza_text(text, cuvinte_vulgare,explicit):
 
     text_procesat = ' '.join(cuvinte_procesate)
     text_procesat += '\n'
-    return ( text_procesat,explicit)  
+    return ( text_procesat,explicit)
 
 
 # Funcție pentru cenzurarea cuvântului în funcție de lungime
