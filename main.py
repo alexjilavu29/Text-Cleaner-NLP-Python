@@ -5,7 +5,6 @@
 
 import os
 from dotenv import load_dotenv
-import requests
 
 # Încarcă variabilele de mediu din fișierul .env
 load_dotenv()
@@ -20,7 +19,7 @@ def citeste_text_din_fisier(nume_fisier):
         continut = fisier.read()
     return continut
 
-cuvinte_vulgare = ['shit', 'fuck', 'fucking', 'bitch', 'dick']  # Completează lista cu cuvintele vulgare reale.
+cuvinte_vulgare = ['shit', 'fuck', 'fucking', 'bitch', 'dick', 'kys']  # Completează lista cu cuvintele vulgare reale.
 explicit = 0
 
 def cenzureaza_cuvant(cuvant):
@@ -64,7 +63,7 @@ def verifica_cuvant(cuvant, api_key):
     }
 
     # Formatează URL-ul pentru a include cuvântul căutat
-    url = f"/words/{cuvant}"
+    url = f"/words/{cuvant}/frequency"
 
     # Trimite requestul GET
     conn.request("GET", url, headers=headers)
@@ -79,12 +78,29 @@ def verifica_cuvant(cuvant, api_key):
 
     # Verifică dacă cuvântul există în răspuns
     if 'word' in response:
-        print(f"Cuvântul '{cuvant}' există în dicționarul englez.")
+        print(f"Cuvântul '{cuvant}' există în dicționarul limbii engleze.")
+        if response['frequency']['perMillion'] < 1:
+            print(f"Cuvântul '{cuvant}' este rar întâlnit.")
+            return "rar"
+        return True
     else:
-        print(f"Cuvântul '{cuvant}' nu există în dicționarul englez.")
+        print(f"Cuvântul '{cuvant}' nu există în dicționarul limbii engleze.")
+        return False
 
+def test_similitudine(cuvant):
+    count_litere_similare = 0
+    litere_cuvant = list(cuvant)
+    for cuvant_vulgar in cuvinte_vulgare:
+        litere_cuvant_vulgar = list(cuvant_vulgar)
+        for litera in litere_cuvant:
+            if litera in litere_cuvant_vulgar:
+                count_litere_similare += 1
+        if count_litere_similare + 1 == len(litere_cuvant_vulgar):
+            return (1, cuvant_vulgar)
+        count_litere_similare = 0
+    return False
 
-def proceseaza_text(text, cuvinte_vulgare):
+def proceseaza_text(text, cuvinte_vulgare,explicit):
     # Separăm textul în cuvinte și procesăm fiecare cuvânt.
     cuvinte = text.split()
     cuvinte_procesate = []
@@ -92,22 +108,29 @@ def proceseaza_text(text, cuvinte_vulgare):
 
     for cuvant in cuvinte:
         cuvant_original = cuvant.lower().strip('.,!?-"')  # Normalizăm cuvantul pentru comparație.
-        verifica_cuvant(cuvant_original, api_key)
         if cuvant_original in cuvinte_vulgare:
             cuvant = cenzureaza_cuvant(cuvant)  # Aplicăm cenzura dacă cuvantul este vulgar.
             explicit_count += 1
+        else:
+            similar = test_similitudine(cuvant_original)
+            if similar:
+                verificare = verifica_cuvant(cuvant_original, api_key)
+                if verificare == False or verificare == "rar":
+                    cuvant = cenzureaza_cuvant(cuvant_original)
+                    explicit_count += 1
         cuvinte_procesate.append(cuvant)
 
     if explicit_count>=3:
         print("\n\nTextul contine " + str(explicit_count) + " cuvinte vulgare.")
         explicit = 1
-    return ' '.join(cuvinte_procesate)  # Reunim cuvintele înapoi într-un text.
+
+    return (' '.join(cuvinte_procesate),explicit)  # Reunim cuvintele înapoi într-un text.
 
 if __name__ == '__main__':
     text_de_intrare = citeste_text_din_fisier('input.txt')
-    text_sanitizat = proceseaza_text(text_de_intrare, cuvinte_vulgare)
-    if explicit == 1:
+    text_sanitizat = proceseaza_text(text_de_intrare, cuvinte_vulgare, explicit)
+    if text_sanitizat[1]==1:
         print("\n\nTextul a fost marcat ca fiind vulgar. Apar mai mult de 3 cuvinte vulgare.")
-    print(text_sanitizat)
+    print(text_sanitizat[0])
     with open('output.txt', 'w', encoding='utf-8') as fisier:
-        fisier.write(text_sanitizat)
+        fisier.write(text_sanitizat[0])
