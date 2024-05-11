@@ -14,21 +14,28 @@ cuvinte_vulgare = ['shit', 'fuck', 'fucking', 'bitch', 'dick']  # Completează l
 def cenzureaza_cuvant(cuvant):
     # Cenzuram cuvântul în funcție de lungimea acestuia.
 
-    lungime = len(cuvant)
+    print("\n" + cuvant)
 
-    print("{ "+cuvant+" , "+str(lungime)+" }")
+    cuvant_ajustat = cuvant.strip('", ;.!?-')
+
+    lungime = len(cuvant_ajustat)
 
     numar_cenzuri = 1
     if lungime>4:
         numar_cenzuri += (lungime-4)//3  # Calculam numărul de litere ce trebuie cenzurate.
 
-    cuvant_cenzurat = list(cuvant)  # Transformam cuvantul într-o listă de caractere pentru a putea modifica literele.
+    litere_cuvant_cenzurat = list(cuvant_ajustat)  # Transformam cuvantul într-o listă de caractere pentru a putea modifica literele.
 
     for i in range(numar_cenzuri):
-        cuvant_cenzurat[i+1] = '*'  # Cenzuram litera respectivă.
+        litere_cuvant_cenzurat[i+1] = '*'  # Cenzuram litera respectivă.
 
-    return ''.join(cuvant_cenzurat)  # Convertim lista înapoi într-un string.
+    cuvant_cenzurat = ''.join(litere_cuvant_cenzurat)  # Convertim lista înapoi într-un string.
 
+    cuvant = cuvant.replace(cuvant_ajustat,cuvant_cenzurat)
+
+    print( " { " + cuvant_ajustat + " | "+ cuvant_cenzurat + " | " + str(lungime) +  " | " + cuvant + " }")
+
+    return cuvant
 def proceseaza_text(text, cuvinte_vulgare):
     # Separăm textul în cuvinte și procesăm fiecare cuvânt.
     cuvinte = text.split()
