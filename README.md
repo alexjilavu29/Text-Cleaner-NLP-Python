@@ -34,7 +34,7 @@ This project aims to develop a lexical cleansing program using Natural Language 
       WORDSAPI_KEY=your_api_key
       ```
 
-2. **Run the script:**
+3. **Run the script:**
     ```bash
     python main.py
     ```
@@ -117,7 +117,7 @@ Acest proiect are ca scop dezvoltarea unui program de curățare lexicală folos
       WORDSAPI_KEY=cheia_ta_api
       ```
 
-2. **Rulează scriptul:**
+3. **Rulează scriptul:**
     ```bash
     python main.py
     ```
